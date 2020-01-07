@@ -58,12 +58,25 @@ namespace CSProject
 
         public Manager(string name) : base(name, managerHourlyRate) { }
 
-        public int Allowance { get; private set; }
-
+        public int Allowance { get; private set; } = 1000;
+        
         public override void CalculatePay()
         {
             base.CalculatePay();
+            // not sure about this if/else statement
+            if (HoursWorked > 160)
+                TotalPay += 1000;
+            else
+                TotalPay = TotalPay;
         }
+
+        public override string ToString()
+        {
+            // not sure about this
+            return base.ToString();
+        }
+
+
 
     }
 
