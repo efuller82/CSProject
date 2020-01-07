@@ -42,7 +42,7 @@ namespace CSProject
 
             BasicPay = hWorked * hourlyRate;
 
-            BasicPay = TotalPay;
+            TotalPay = BasicPay;
         }
 
         public override string ToString()
@@ -51,6 +51,22 @@ namespace CSProject
         }
 
     }
+
+    class Manager : Staff
+    {
+        private const float managerHourlyRate = 50;
+
+        public Manager(string name) : base(name, managerHourlyRate) { }
+
+        public int Allowance { get; private set; }
+
+        public override void CalculatePay()
+        {
+            base.CalculatePay();
+        }
+
+    }
+
     class Program
     {
         static void Main(string[] args)
