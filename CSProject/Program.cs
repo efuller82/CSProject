@@ -75,9 +75,40 @@ namespace CSProject
             // not sure about this
             return base.ToString();
         }
+    }
 
+    class Admin : Staff
+    {
+        private const float overtimeRate = 15.5f;
+        private const float adminHourlyRate = 30;
 
+        public Admin(string name) : base(name, adminHourlyRate) { }
 
+        // Not sure about any of this
+        public float Overtime {
+            get
+            {
+                return Overtime;
+            }
+            private set
+            {
+                Overtime = overtimeRate * (HoursWorked - 160);
+            }
+        } 
+
+        public override void CalculatePay()
+        {
+            // not sure about this if/else statement, much like Manager class
+            base.CalculatePay();
+            if (HoursWorked > 160)
+                TotalPay += Overtime;
+            else
+                TotalPay = TotalPay;               
+        }
+        public override string ToString()
+        {
+            return base.ToString();
+        }
     }
 
     class Program
