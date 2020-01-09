@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -109,6 +110,32 @@ namespace CSProject
         {
             return base.ToString();
         }
+    }
+
+    class FileReader
+    {
+        public List<Staff> ReadFile()
+        {
+            List<Staff> myStaff = new List<Staff>();
+            string[] result = new string[2];
+            string path = "staff.txt";
+            string[] separator = { "," };
+
+            if (File.Exists("staff.txt"))
+                using (StreamReader sr = new StreamReader(path))
+                {
+                    while (sr.EndOfStream != true)
+                    {
+                        Console.WriteLine(sr.ReadLine());
+                    }
+                    sr.Close();
+                }
+            else
+                Console.WriteLine("There is an error");
+
+            return myStaff;
+        }
+        
     }
 
     class Program
