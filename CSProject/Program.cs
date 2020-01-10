@@ -12,7 +12,7 @@ namespace CSProject
     {
         private float hourlyRate;
         private int hWorked;
-        
+
         public float TotalPay { get; protected set; }
         public float BasicPay { get; private set; }
         public string NameOfStaff { get; private set; }
@@ -59,16 +59,16 @@ namespace CSProject
 
         public Manager(string name) : base(name, managerHourlyRate) { }
 
-        public int Allowance { get; private set; } = 1000;
+        public int Allowance { get; private set; }
         
         public override void CalculatePay()
         {
             base.CalculatePay();
-            // not sure about this if/else statement
+
+            Allowance = 1000;
+
             if (HoursWorked > 160)
-                TotalPay += 1000;
-            else
-                TotalPay = TotalPay;
+                TotalPay = BasicPay + Allowance;
         }
 
         public override string ToString()
@@ -136,6 +136,54 @@ namespace CSProject
             return myStaff;
         }
         
+    }
+
+    class PaySlip
+    {
+        private int month;
+        private int year;
+
+        enum MonthsOfYear
+        {
+            JAN = 1, FEB = 2, MAR = 3, APR = 4, MAY = 5, JUN = 6, JUL = 7, AUG = 8, SEP = 9, OCT = 10, NOV = 11, DEC = 12
+        }
+
+        public PaySlip(int payMonth, int payYear) { }
+
+        public void GeneratePaySlip(List<Staff>myStaff)
+        {
+            string path;
+            foreach (Staff f in myStaff)
+            {
+                path = f.NameOfStaff + ".txt";
+                StreamWriter sw = new StreamWriter(path);
+                sw.WriteLine("PAYSLIP FOR {0} {1}", (MonthsOfYear)month, year);
+                sw.WriteLine("=======================");
+                sw.WriteLine("Name Of Staff: {0}", f.NameOfStaff);
+                sw.WriteLine("Hours Worked: {0}", f.HoursWorked);
+                sw.WriteLine("");
+                sw.WriteLine("Basic Pay: {0}", Convert.ToInt32(f.BasicPay));
+
+                if (f.GetType() == typeof(Manager))
+                    sw.WriteLine("Allowance: {0: C}", ((Manager)f).Allowance);
+                else if (f.GetType() == typeof(Admin))
+                    sw.WriteLine("Overtime: {0: C}", ((Admin)f).Overtime);
+
+                sw.WriteLine("");
+                sw.WriteLine("======================");
+
+                sw.WriteLine("Total Pay: {0: C}", f.TotalPay);
+
+                sw.WriteLine("======================");
+                
+                sw.Close();
+            }
+        }
+
+        public void GenerateSummary()
+        {
+
+        }
     }
 
     class Program
