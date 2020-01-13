@@ -1,11 +1,85 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using System.IO;
 
 namespace CSProject
 {
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<Staff> myStaff = new List<Staff>();
+            FileReader fr = new FileReader();
+            int month = 0;
+            int year = 0;
+
+            while (year == 0)
+            {
+                Console.Write("\nPlease enter the year:");
+
+                try
+                {
+                    //Code to convert the input to an integer
+                    year = Convert.ToInt32(Console.ReadLine());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message + "Please try again");
+                }
+            }
+
+            while (month == 0)
+            {
+                Console.Write("\nPlease enter the month:");
+
+                try
+                {
+                    //Code to convert the input to an integer
+                    month = Convert.ToInt32(Console.ReadLine());
+
+                    if (month < 1 || month > 12)
+                    {
+
+                        Console.WriteLine("Input is not valid yo");
+                    month = 0;
+                    }                       
+                }
+                catch (Exception e)
+                {
+                    //Code to handle the exception
+                    Console.WriteLine(e.Message + "Please try again");
+                }
+            } 
+
+            myStaff = fr.ReadFile();
+
+            for(int i = 0; i < myStaff.Count; i++)
+            {
+                try
+                {
+                    //prompt user to enter the number of hours worked for each staff
+                    Console.WriteLine("Enter hours worked for {0}: ", myStaff[i].NameOfStaff);
+                    myStaff[i].HoursWorked = Convert.ToInt32(Console.ReadLine());
+                    myStaff[i].CalculatePay();
+
+                    Console.WriteLine(myStaff[i].ToString());
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    i--;
+                }
+            }
+            PaySlip ps = new PaySlip(month, year);
+            ps.GeneratePaySlip(myStaff);
+            ps.GenerateSummary(myStaff);
+
+            Console.Read();
+        }
+    }
 
     
     class Staff
@@ -48,9 +122,8 @@ namespace CSProject
 
         public override string ToString()
         {
-            return "hourlyRate = " + hourlyRate + ", hworked = " + hWorked + ", Name of Staff = " + NameOfStaff; 
+            return "\nhourlyRate=" + hourlyRate + "\nWorked=" + hWorked + "\nBasicPay=" +BasicPay + "\n\nTotalPay=" +TotalPay; 
         }
-
     }
 
     class Manager : Staff
@@ -74,41 +147,31 @@ namespace CSProject
         public override string ToString()
         {
             // not sure about this
-            return base.ToString();
+            return "\nNameOfStaff=" + NameOfStaff + "\nmangerHourlyRate=" + managerHourlyRate + "\nHoursWorked=" + HoursWorked + "\nBasicPay=" + BasicPay + "\nAllowance=" + Allowance + "\n\nTotalPay=" + TotalPay;
         }
     }
 
     class Admin : Staff
     {
         private const float overtimeRate = 15.5f;
-        private const float adminHourlyRate = 30;
+        private const float adminHourlyRate = 30f;
 
         public Admin(string name) : base(name, adminHourlyRate) { }
 
         // Not sure about any of this
-        public float Overtime {
-            get
-            {
-                return Overtime;
-            }
-            private set
-            {
-                Overtime = overtimeRate * (HoursWorked - 160);
-            }
-        } 
+        public float Overtime { get; private set; }
 
         public override void CalculatePay()
         {
             // not sure about this if/else statement, much like Manager class
             base.CalculatePay();
             if (HoursWorked > 160)
-                TotalPay += Overtime;
-            else
-                TotalPay = TotalPay;               
+                Overtime = overtimeRate * (HoursWorked - 160);              
         }
+        
         public override string ToString()
         {
-            return base.ToString();
+            return "\nNameOfStaff=" + NameOfStaff + "\nadminHourlyRate=" + adminHourlyRate + "\nHoursWorked=" + HoursWorked + "\nBasicPay=" + BasicPay + "\nOvertime=" + Overtime + "\n\nTotalPay=" + TotalPay;
         }
     }
 
@@ -121,18 +184,25 @@ namespace CSProject
             string path = "staff.txt";
             string[] separator = { "," };
 
-            if (File.Exists("staff.txt"))
+            if (File.Exists(path))
+            { 
                 using (StreamReader sr = new StreamReader(path))
                 {
-                    while (sr.EndOfStream != true)
+                    while (!sr.EndOfStream)
                     {
-                        Console.WriteLine(sr.ReadLine());
+                        result = sr.ReadLine().Split(separator, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (result[1] == "Manager")
+                            myStaff.Add(new Manager(result[0]));
+                        else if (result[1] == "Admin")
+                            myStaff.Add(new Admin(result[0]));
                     }
                     sr.Close();
                 }
-            else
+            }else
+            {
                 Console.WriteLine("There is an error");
-
+            }
             return myStaff;
         }
         
@@ -145,10 +215,14 @@ namespace CSProject
 
         enum MonthsOfYear
         {
-            JAN = 1, FEB = 2, MAR = 3, APR = 4, MAY = 5, JUN = 6, JUL = 7, AUG = 8, SEP = 9, OCT = 10, NOV = 11, DEC = 12
+            JAN = 1, FEB = 2, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC
         }
 
-        public PaySlip(int payMonth, int payYear) { }
+        public PaySlip(int payMonth, int payYear) 
+        {
+            month = payMonth;
+            year = payYear;
+        }
 
         public void GeneratePaySlip(List<Staff>myStaff)
         {
@@ -180,16 +254,31 @@ namespace CSProject
             }
         }
 
-        public void GenerateSummary()
+        public void GenerateSummary(List<Staff> myStaff)
         {
+            var result =
+                from f in myStaff
+                where f.HoursWorked < 10
+                orderby f.NameOfStaff ascending
+                select new { f.NameOfStaff, f.HoursWorked };
 
+            string path = "summary.txt";
+            StreamWriter sw = new StreamWriter(path);
+            {
+            sw.WriteLine("Staff with less than 10 working hours");
+            sw.WriteLine("");
+            foreach (var f in result)
+                sw.WriteLine("Name of Staff: {0}, Hours Worked: {1}", f.NameOfStaff, f.HoursWorked);
+
+            sw.Close();
+
+            }
         }
-    }
 
-    class Program
-    {
-        static void Main(string[] args)
+        public override string ToString()
         {
+            return "month=" + month + "year=" + year;
+
         }
     }
 }
