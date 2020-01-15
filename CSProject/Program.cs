@@ -12,6 +12,7 @@ namespace CSProject
         static void Main(string[] args)
         {
             List<Staff> myStaff = new List<Staff>();
+
             FileReader fr = new FileReader();
             int month = 0;
             int year = 0;
@@ -236,17 +237,17 @@ namespace CSProject
                 sw.WriteLine("Name Of Staff: {0}", f.NameOfStaff);
                 sw.WriteLine("Hours Worked: {0}", f.HoursWorked);
                 sw.WriteLine("");
-                sw.WriteLine("Basic Pay: {0}", Convert.ToInt32(f.BasicPay));
+                sw.WriteLine("Basic Pay: {0:C}", Convert.ToInt32(f.BasicPay));
 
                 if (f.GetType() == typeof(Manager))
-                    sw.WriteLine("Allowance: {0: C}", ((Manager)f).Allowance);
+                    sw.WriteLine("Allowance: {0:C}", ((Manager)f).Allowance);
                 else if (f.GetType() == typeof(Admin))
-                    sw.WriteLine("Overtime: {0: C}", ((Admin)f).Overtime);
+                    sw.WriteLine("Overtime: {0:C}", ((Admin)f).Overtime);
 
                 sw.WriteLine("");
                 sw.WriteLine("======================");
 
-                sw.WriteLine("Total Pay: {0: C}", f.TotalPay);
+                sw.WriteLine("Total Pay: {0:C}", f.TotalPay);
 
                 sw.WriteLine("======================");
                 
